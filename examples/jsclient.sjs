@@ -2,7 +2,7 @@
  * Sample JS client with READ/WRITE access to PHP session
  */
 
-var phpSession = require('./v8-php2.js');
+var phpSession = require('../lib/v8-php2.js');
 
 phpSession.session_start();
 

@@ -1,2 +1,4 @@
-JavaScript module v8-php2 reads original PHP session file and decodes it to JSON object.
+Read-write PHP session data in JavaScript.
+
+Use it in Server-Side JavaScript to share session data with PHP. 
   
