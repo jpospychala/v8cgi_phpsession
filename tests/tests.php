@@ -7,6 +7,7 @@ function test($msg) {
 
 
 test('hello');
+test('hello "doctor" johnes');
 test(123);
 test(null);
 test(1.3);

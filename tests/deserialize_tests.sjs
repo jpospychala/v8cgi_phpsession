@@ -1,8 +1,18 @@
 var deserialize = require('../lib/php-serialize.js').deserialize;
 
 function assertEquals(message, expected, actual) {
-  if (expected != actual) {
-  	throw 'assertEquals failed: ' + message+'. Expected: "'+expected+'", actual: "'+actual+'"';
+  if ((expected != null) && (typeof expected == 'object')) {
+    if (actual === undefined) {
+      throw 'assertEquals failed, actual is undefined, while expected '+expected;
+    }
+    if (actual.constructor != expected.constructor) {
+      throw 'assertEquals failed: ' + message+'. Expected constructor '+expected.constructor+', but was '+actual.constructor;
+    }
+    for (var k in expected) {
+      assertEquals('index '+k+' '+message, expected[k], actual[k]);
+    }
+  } else if (expected != actual) {
+  	throw 'assertEquals failed: ' + message+'. Expected: "'+expected+'" ('+(typeof expected)+'), actual: "'+actual+'" ('+(typeof actual)+')';
   }
 }
 
@@ -24,11 +34,14 @@ assertEquals('array of arrays', [[], []], deserialize('a:2:{i:0;a:0:{}i:1;a:0:{}
 assertEquals('hashmap', {'apple' : 'fruit', 'orange' : 'color', 'cherry' : 'kiss'}, deserialize('a:3:{s:5:"apple";s:5:"fruit";s:6:"orange";s:5:"color";s:6:"cherry";s:4:"kiss";}'));
 
 // object tests
-var obj = deserialize('O:12:"SampleObject":0:{}');
-assertEquals('sampleObject', 'SampleObject', obj.constructor.name);
+var ctx1 = { SampleObject : function() {}};
+var out = deserialize('O:12:"SampleObject":0:{}', ctx1);
+assertEquals('sampleObject', new ctx1.SampleObject(), out);
+assertEquals('sampleObject', 'SampleObject', out.constructor.name);
 
 // stuffed constructor
-var address = deserialize('O:7:"Address":6:{s:6:"street";s:10:"Strzelecka";s:5:"house";i:10;s:4:"room";i:1;s:7:"zipcode";s:6:"62-256";s:4:"city";s:6:"Poznan";s:7:"country";s:6:"Poland";}');
+var ctx2 = { Address : function() {}};
+var address = deserialize('O:7:"Address":6:{s:6:"street";s:10:"Strzelecka";s:5:"house";i:10;s:4:"room";i:1;s:7:"zipcode";s:6:"62-256";s:4:"city";s:6:"Poznan";s:7:"country";s:6:"Poland";}', ctx2);
 assertEquals('sampleObject', 'Address', address.constructor.name);
 assertEquals('address object', 'Strzelecka', address.street);
 assertEquals('address object', 10, address.house);
